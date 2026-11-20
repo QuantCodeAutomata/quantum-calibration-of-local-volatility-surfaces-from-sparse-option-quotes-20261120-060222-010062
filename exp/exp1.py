@@ -55,6 +55,7 @@ from src.local_variance import build_operator_family, local_variance_surface, sm
 from src.pricing import implied_vol_from_price, rmse_bp
 from src.propagators import (
     coefficient_independent_theta,
+    lchs_scaled_kc,
     propagate_backward_euler,
     propagate_exact,
     propagate_lchs,
@@ -110,13 +111,18 @@ def run_case(name: str, generating_coeffs: tuple[float, ...]) -> dict:
     )
 
     theta = coefficient_independent_theta(A0, A_list)
+    # The literal K_c=96 (Sec. III.A) truncates the LCHS quadrature inside the
+    # spectral radius of the fitted strike-derivative operator at N=128
+    # interior nodes; K_c is scaled to the operator's own spectral radius so
+    # the quadrature covers its dynamic range (deviation, see RESULTS.md).
+    kc_executed = lchs_scaled_kc(A0, A_list, theta, EXP1_LCHS_KC)
     propagators = {
         "exact": lambda v0, A, delta: propagate_exact(v0, A, delta),
         "backward_euler": lambda v0, A, delta: propagate_backward_euler(
             v0, A, delta, EXP1_BACKWARD_EULER_STEPS
         ),
         "beta_lchs": lambda v0, A, delta: propagate_lchs(
-            v0, A, delta, theta, EXP1_LCHS_J, EXP1_LCHS_KC, EXP1_LCHS_BETA, kernel="beta"
+            v0, A, delta, theta, EXP1_LCHS_J, kc_executed, EXP1_LCHS_BETA, kernel="beta"
         ),
     }
     held_out_rmse = {}
@@ -151,6 +157,7 @@ def run_case(name: str, generating_coeffs: tuple[float, ...]) -> dict:
         "grid_convergence_rmse_bp": grid_convergence_rmse_bp,
         "iv_surface": iv_surface,
         "maturities": maturities,
+        "lchs_kc_executed": kc_executed,
     }
 
 
@@ -186,6 +193,7 @@ def main() -> None:
                     "propagator": method,
                     "held_out_rmse_bp": rmse,
                     "grid_convergence_rmse_bp": result["grid_convergence_rmse_bp"],
+                    "lchs_kc_executed": result["lchs_kc_executed"],
                 }
             )
         with open(os.path.join(RESULTS_DIR, f"exp1_{name}_fitted_coefficients.json"), "w") as f:

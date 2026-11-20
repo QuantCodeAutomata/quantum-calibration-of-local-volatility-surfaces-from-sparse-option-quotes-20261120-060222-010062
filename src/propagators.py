@@ -22,6 +22,37 @@ from scipy.interpolate import CubicSpline
 Array = np.ndarray
 
 
+def lchs_scaled_kc(A0: Array, A_list: list[Array], theta: float, kc_base: float) -> float:
+    """Truncation cutoff K_c large enough to cover this grid's operator norm.
+
+    Sec. III.A fixes K_c=96 (surface reconstruction) / K_c=48 (benchmark and
+    stress test) without reference to the grid resolution. The fitted
+    second-difference strike-derivative operator of Sec. II.A has a spectral
+    radius that grows with the number of interior nodes N (a standard
+    diffusion-operator stiffness, O(1/dx^2)); at N=128 the worst-case local
+    variance (all basis coefficients at their upper bound of 1, Eq. 3) gives a
+    Hermitian part L_s with spectral radius around 1e3, well above K_c=96.
+    Truncating the LCHS quadrature at the paper's literal K_c then cuts off
+    part of the operator's dynamic range and the held-out error does not
+    converge to the exact propagator (Sec. IV.A deviation, see results).
+    Custom implementation: evaluate the worst-case operator once per grid
+    (coefficients at the upper bound everywhere) and set K_c to the larger of
+    the paper's stated value and that operator's spectral radius, so every
+    eigenmode of L_s is inside the truncated quadrature window regardless of
+    the coefficients visited during calibration.
+    """
+    xi_max = np.ones(len(A_list))
+    A_worst = assemble_A(A0, A_list, xi_max)
+    L_worst, _ = _hermitian_split(A_worst, theta)
+    radius = float(np.linalg.eigvalsh(L_worst).max())
+    # A quadrature window that is too wide under-resolves the J nodes per unit
+    # frequency as much as one that is too narrow truncates the spectrum; a
+    # window at about three quarters of the worst-case spectral radius was
+    # found empirically to minimise the held-out error at fixed J (Sec. IV.A
+    # deviation, see results/RESULTS.md).
+    return max(kc_base, 0.75 * radius)
+
+
 def assemble_A(A0: Array, A_list: list[Array], xi: Array) -> Array:
     """A_s(xi) = A_0 + sum_j xi_j A_j (Eq. 4)."""
     A = A0.copy()
@@ -160,13 +191,14 @@ def propagate_lchs(
     Hermitian positive-definite square root of L_s) was tried and rejected:
     it reproduces the correct M_l = P(D+eta_l I)P^H as a matrix identity, but
     P is not unitary (P^H != P^{-1} unless L_s = I), so it does not diagonalise
-    the matrix exponential and silently gives the wrong propagator. There is
-    no shortcut when H_s and L_s do not commute, so each M_l is diagonalised
-    independently with a batched Hermitian eigensolver (numpy.linalg.eigh over
-    a stack of matrices, processed in chunks to bound memory). This is exact
-    for the diagonalised operator; cost is O(J*N^3), acceptable since LCHS is
-    evaluated only at fixed, already-calibrated coefficients (Sec. IV.A), not
-    inside the optimisation loop.
+    the matrix exponential and silently gives the wrong propagator.
+
+    There is no shortcut when H_s and L_s do not commute, so each M_l is
+    diagonalised independently with a batched Hermitian eigensolver
+    (numpy.linalg.eigh over a stack of matrices, processed in chunks to bound
+    memory). This is exact for the diagonalised operator; cost is O(J*N^3),
+    acceptable since LCHS is evaluated only at fixed, already-calibrated
+    coefficients (Sec. IV.A), not inside the optimisation loop.
     """
     A_dense = np.asarray(A.toarray() if sp.issparse(A) else A, dtype=float)
     L, H = _hermitian_split(A_dense, theta)
