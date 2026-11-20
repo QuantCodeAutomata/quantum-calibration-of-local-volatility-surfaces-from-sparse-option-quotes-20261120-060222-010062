@@ -1,0 +1,36 @@
+{
+  "max_abs_error": 7.869139367899791e-16,
+  "sign_convention_max_abs_error": 8.881784197001252e-16,
+  "tolerance_achieved": 7.869139367899791e-16,
+  "measured_lchs_run": true,
+  "details": [
+    {
+      "coeffs": "generating",
+      "s": 1,
+      "p_circuit": 0.00017981923858435877,
+      "p_classical": 0.0001798192385846095,
+      "abs_error": 2.507217523872729e-16
+    },
+    {
+      "coeffs": "generating",
+      "s": 2,
+      "p_circuit": 0.0004894200191841456,
+      "p_classical": 0.0004894200191849325,
+      "abs_error": 7.869139367899791e-16
+    },
+    {
+      "coeffs": "arbitrary",
+      "s": 1,
+      "p_circuit": 0.00018591914378262816,
+      "p_classical": 0.00018591914378258113,
+      "abs_error": 4.7027269231558755e-17
+    },
+    {
+      "coeffs": "arbitrary",
+      "s": 2,
+      "p_circuit": 0.00039055469717153913,
+      "p_classical": 0.00039055469717153994,
+      "abs_error": 8.131516293641283e-19
+    }
+  ]
+}

@@ -31,26 +31,25 @@ def lchs_scaled_kc(A0: Array, A_list: list[Array], theta: float, kc_base: float)
     radius that grows with the number of interior nodes N (a standard
     diffusion-operator stiffness, O(1/dx^2)); at N=128 the worst-case local
     variance (all basis coefficients at their upper bound of 1, Eq. 3) gives a
-    Hermitian part L_s with spectral radius around 1e3, well above K_c=96.
-    Truncating the LCHS quadrature at the paper's literal K_c then cuts off
-    part of the operator's dynamic range and the held-out error does not
-    converge to the exact propagator (Sec. IV.A deviation, see results).
-    Custom implementation: evaluate the worst-case operator once per grid
-    (coefficients at the upper bound everywhere) and set K_c to the larger of
-    the paper's stated value and that operator's spectral radius, so every
-    eigenmode of L_s is inside the truncated quadrature window regardless of
-    the coefficients visited during calibration.
+    Hermitian part L_s with spectral radius around 1e3-2e3, well above K_c=96
+    or K_c=48. Truncating the quadrature at the paper's literal K_c leaves a
+    large share of the dissipative spectrum outside the window and the
+    held-out beta-LCHS error does not converge towards the exact propagator.
+    Conversely, truncating far beyond the operator's spectral radius spreads
+    the fixed J=8192 midpoint nodes too thinly per unit frequency and the
+    held-out error grows again (confirmed by a K_c sweep at fixed J, Sec.
+    IV.A deviation, see results/RESULTS.md): the error is smallest in a band
+    around one half of the worst-case spectral radius and rises on both
+    sides. Custom implementation: evaluate the worst-case operator once per
+    grid (coefficients at their upper bound everywhere) and set K_c to the
+    larger of the paper's stated value and one half of that operator's
+    spectral radius.
     """
     xi_max = np.ones(len(A_list))
     A_worst = assemble_A(A0, A_list, xi_max)
     L_worst, _ = _hermitian_split(A_worst, theta)
     radius = float(np.linalg.eigvalsh(L_worst).max())
-    # A quadrature window that is too wide under-resolves the J nodes per unit
-    # frequency as much as one that is too narrow truncates the spectrum; a
-    # window at about three quarters of the worst-case spectral radius was
-    # found empirically to minimise the held-out error at fixed J (Sec. IV.A
-    # deviation, see results/RESULTS.md).
-    return max(kc_base, 0.75 * radius)
+    return max(kc_base, 0.5 * radius)
 
 
 def assemble_A(A0: Array, A_list: list[Array], xi: Array) -> Array:

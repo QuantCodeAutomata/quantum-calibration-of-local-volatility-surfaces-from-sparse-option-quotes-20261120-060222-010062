@@ -59,6 +59,13 @@ EXP2_LCHS_BETA = 0.8                        # improved-kernel beta (Sec. III.A)
 EXP2_ALT_TARGET_PARAMS = (0.01, 0.055, 0.1, 0.3, 0.035, 4.0)  # a_min, amp1, loc1, scale1, amp2, slope2 of
                                              # a(T,k)=0.01+0.055*exp(-((x+0.1)/0.3)^2)+0.035/(1+exp(4x)) (Sec. IV.B)
 EXP2_RANDOM_SEED = 20261120                 # base seed for optimiser starts and noise draws (not specified in the paper)
+EXP2_BASELINE_COEFFICIENTS = ((0.6, 0.4, 0.6, 0.4), (0.3, 0.7, 0.3, 0.7))  # generating xi per
+                                             # interval for the four-basis baseline target (not
+                                             # specified in the paper: chosen so both intervals use
+                                             # distinct, non-degenerate weights on all four bumps)
+EXP2_OPTIMIZER_START_GUESSES = (0.1, 0.3, 0.5, 0.7, 0.9)  # five optimiser starts: uniform initial
+                                             # guess for every coefficient (Sec. IV.B states "five
+                                             # optimiser starts" without defining them)
 
 # ---------------------------------------------------------------------------
 # Experiment 3: small-circuit measured calibration (Sec. IV.C)

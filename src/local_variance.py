@@ -75,6 +75,21 @@ def alternative_target_local_variance(x: np.ndarray) -> np.ndarray:
     return 0.01 + 0.055 * np.exp(-((x + 0.1) / 0.3) ** 2) + 0.035 / (1.0 + np.exp(4.0 * x))
 
 
+def build_operator_from_variance_fn(
+    grid: LogStrikeGrid, variance_fn: Callable[[np.ndarray], np.ndarray]
+) -> np.ndarray:
+    """Dupire forward operator A = -(1/2) a(k) k^2 D2 for an explicit a(x), x=log(k).
+
+    Used for the alternative benchmark target (Sec. IV.B), whose local
+    variance a(T,k) = 0.01 + 0.055*exp(-((x+0.1)/0.3)^2) + 0.035/(1+exp(4x))
+    is not a basis combination of the calibration model (Eq. 3) and is
+    instead plugged directly into the Dupire operator of Eq. 4.
+    """
+    _, D2 = build_base_operators(grid)
+    k2 = grid.k ** 2
+    return -0.5 * (variance_fn(grid.x) * k2)[:, None] * D2
+
+
 def build_operator_family(
     grid: LogStrikeGrid, basis: list[Callable[[np.ndarray], np.ndarray]]
 ) -> tuple[np.ndarray, list[np.ndarray]]:

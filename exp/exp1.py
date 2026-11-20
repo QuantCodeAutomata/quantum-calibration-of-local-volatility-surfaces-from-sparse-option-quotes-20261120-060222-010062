@@ -55,7 +55,6 @@ from src.local_variance import build_operator_family, local_variance_surface, sm
 from src.pricing import implied_vol_from_price, rmse_bp
 from src.propagators import (
     coefficient_independent_theta,
-    lchs_scaled_kc,
     propagate_backward_euler,
     propagate_exact,
     propagate_lchs,
@@ -111,11 +110,12 @@ def run_case(name: str, generating_coeffs: tuple[float, ...]) -> dict:
     )
 
     theta = coefficient_independent_theta(A0, A_list)
-    # The literal K_c=96 (Sec. III.A) truncates the LCHS quadrature inside the
-    # spectral radius of the fitted strike-derivative operator at N=128
-    # interior nodes; K_c is scaled to the operator's own spectral radius so
-    # the quadrature covers its dynamic range (deviation, see RESULTS.md).
-    kc_executed = lchs_scaled_kc(A0, A_list, theta, EXP1_LCHS_KC)
+    # Literal K_c=96 (Sec. III.A, Eq. 7). Each unitary e^{-i*Delta*(H_s+eta*L_s)}
+    # has operator norm 1, so the LCHS truncation error at cutoff K_c is bounded
+    # by the tail probability mass of the quadrature kernel beyond K_c, which
+    # does not depend on the operator's own spectral radius; no grid-dependent
+    # rescaling of K_c is needed or paper-justified.
+    kc_executed = EXP1_LCHS_KC
     propagators = {
         "exact": lambda v0, A, delta: propagate_exact(v0, A, delta),
         "backward_euler": lambda v0, A, delta: propagate_backward_euler(
