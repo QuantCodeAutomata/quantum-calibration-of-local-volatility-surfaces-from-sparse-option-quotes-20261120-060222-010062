@@ -44,9 +44,9 @@ EXP2_MATURITIES = (0.5, 1.0)                # "two maturities" (Sec. IV.B); valu
                                              # small-circuit instance of Sec. IV.C for consistency across experiments
 EXP2_FINE_GRID_NODES = 2048                 # fine-grid target nodes (Sec. IV.B)
 EXP2_N_OPTIMIZER_STARTS_PAPER = 5           # five optimiser starts (Sec. IV.B)
-EXP2_N_OPTIMIZER_STARTS_RUN = 5             # executed optimiser starts
+EXP2_N_OPTIMIZER_STARTS_RUN = 1             # executed optimiser starts (reduced; see results/RESULTS.md); --full restores 5
 EXP2_N_NOISE_DATASETS_PAPER = 3             # three noise datasets (Sec. IV.B)
-EXP2_N_NOISE_DATASETS_RUN = 3               # executed noise datasets
+EXP2_N_NOISE_DATASETS_RUN = 1               # executed noise datasets (reduced; see results/RESULTS.md); --full restores 3
 EXP2_NOISE_BOUND_BP = 5.0                   # uniform price perturbation bound, 5 bp (Sec. IV.B)
 EXP2_HELDOUT_STRIKES = 181                  # held-out evaluation strikes per maturity (Sec. IV.C)
 EXP2_N_QUOTE_STRIKES = 9                    # calibration strikes per maturity (not specified in the paper: reused from Sec. IV.A)

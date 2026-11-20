@@ -53,6 +53,10 @@ from src.config import (
     EXP2_LCHS_J,
     EXP2_LCHS_KC,
     EXP2_MATURITIES,
+    EXP2_N_NOISE_DATASETS_PAPER,
+    EXP2_N_NOISE_DATASETS_RUN,
+    EXP2_N_OPTIMIZER_STARTS_PAPER,
+    EXP2_N_OPTIMIZER_STARTS_RUN,
     EXP2_NOISE_BOUND_BP,
     EXP2_OPTIMIZER_START_GUESSES,
     EXP2_RANDOM_SEED,
@@ -80,12 +84,23 @@ Array = np.ndarray
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")
 
 # ---------------------------------------------------------------------------
-# Time budget (Sec. IV.B states the paper's full grid is 568 runs; reduced
-# here to fit the time available for this reproduction, see task instructions
-# and module docstring). Recorded as columns so the reduction is visible.
+# Sec. IV.B specifies 568 planned runs (five optimiser starts, three noise
+# datasets, three grid sizes, two targets, two noise conditions, seven
+# methods). Reproducing that full grid is not possible in the time available
+# for this reproduction; `--full` selects the paper's counts
+# (EXP2_N_OPTIMIZER_STARTS_PAPER, EXP2_N_NOISE_DATASETS_PAPER), the default
+# selects the reduced, executed counts (EXP2_N_OPTIMIZER_STARTS_RUN,
+# EXP2_N_NOISE_DATASETS_RUN). See results/RESULTS.md, "Deviations from the
+# paper", for the executed configuration and the reduction rule applied.
 # ---------------------------------------------------------------------------
-N_OPTIMIZER_STARTS = 1   # reduced from the paper's 5 (EXP2_N_OPTIMIZER_STARTS_RUN=5) to fit the time available; set to 5 to run the paper's full count
-N_NOISE_DATASETS = 1      # reduced from the paper's 3 (EXP2_N_NOISE_DATASETS_RUN=3)
+import argparse
+
+_parser = argparse.ArgumentParser()
+_parser.add_argument("--full", action="store_true", help="Run the paper's full optimizer-start and noise-dataset counts")
+_FULL = _parser.parse_known_args()[0].full
+
+N_OPTIMIZER_STARTS = EXP2_N_OPTIMIZER_STARTS_PAPER if _FULL else EXP2_N_OPTIMIZER_STARTS_RUN
+N_NOISE_DATASETS = EXP2_N_NOISE_DATASETS_PAPER if _FULL else EXP2_N_NOISE_DATASETS_RUN
 
 BACKWARD_EULER_STEPS = 256  # time steps per maturity interval (not specified in the paper; matches exp1's choice)
 

@@ -292,12 +292,19 @@ Verdicts:
   cell in the four-basis benchmark hit a per-cell wall-clock budget
   (`EXP2_LCHS_TIME_BUDGET_S` in `src/config.py`) before converging, because a
   single beta-LCHS evaluation costs tens of seconds and the optimizer needs
-  many evaluations per calibration, five starts, three grid sizes, two
-  targets and up to three noise datasets. The paper's own planned run count
-  (568, of which 567 expected to complete) was not matched; the grid sizes,
-  optimizer starts and noise design are otherwise unchanged from the paper.
-  `python -m exp.exp2 --full` runs every LCHS cell with the budget increased
-  to allow convergence (and correspondingly longer runtime).
+  many evaluations per calibration. The grid sizes (N=32,64,128) and target
+  cases (baseline, alternative) are unchanged from Sec. IV.B. To keep the
+  full sweep inside the time available, the optimizer-start and noise-dataset
+  counts were reduced from the paper's five starts and three noise datasets
+  (`EXP2_N_OPTIMIZER_STARTS_PAPER`, `EXP2_N_NOISE_DATASETS_PAPER`) to one
+  start and one noise dataset each (`EXP2_N_OPTIMIZER_STARTS_RUN`,
+  `EXP2_N_NOISE_DATASETS_RUN`), as recorded in `results/exp2_summary.csv`'s
+  `n_optimizer_starts_used`/`n_noise_datasets_used` columns. The paper's own
+  planned run count (568, of which 567 expected to complete) was accordingly
+  not matched. `python -m exp.exp2 --full` runs the paper's five optimizer
+  starts and three noise datasets (and, with the LCHS budget increased,
+  every LCHS cell to convergence); this full configuration was not executed
+  here because of its runtime.
 - **Resource-sweep gate counts (Experiment 5).** The paper does not specify
   its Hamiltonian-unitary decomposition; this replication's dense-synthesis
   gate counter (`src/resource_count.py`) matches the paper's qubit formula and
