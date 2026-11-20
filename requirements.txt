@@ -1,0 +1,9 @@
+numpy
+scipy
+pandas
+matplotlib
+torch
+qiskit
+qiskit-aer
+pytest
+python-dotenv
