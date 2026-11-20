@@ -240,8 +240,8 @@ Verdicts:
   multiplies CNOT by ∼8".
 - Absolute CNOT counts: **not reproduced** — every count in this run is
   roughly 8–9× smaller than the paper's Table III. The paper does not specify
-  its Hamiltonian-unitary decomposition method (flagged uncertainty, Sec.
-  V.D); this replication's dense-synthesis gate count
+  its Hamiltonian-unitary decomposition method (Sec. V.D does not state one);
+  this replication's dense-synthesis gate count
   (`src/resource_count.py`) is a different, self-consistent decomposition
   that reproduces the qubit formula and the J-scaling law but not the
   constant factor of the paper's unspecified synthesis routine.
@@ -257,9 +257,9 @@ Verdicts:
   the small-circuit instance (Experiment 3), and the coefficient-independent
   shift θ are "specified in the accompanying notebook" or left unstated. None
   of these notebooks or numerical values are given in the paper text. This
-  replication chose: the two-basis smile/skew weights stated in the
-  experiment description (equal phi_2/phi_3 for the smile, larger phi_3 weight
-  for the skew); nine log-spaced strikes between k=0.7 and 1.4 per maturity;
+  replication chose: equal phi_2/phi_3 weights for the smile and a larger
+  phi_3 weight for the skew, consistent with Sec. IV.A's description of the
+  two cases; nine log-spaced strikes between k=0.7 and 1.4 per maturity;
   two overlapping cosine functions on [-1.2, 1.2] for the small-circuit basis
   and for Experiment 2's four-basis model; and θ computed from the minimum
   eigenvalue of Sym(A_s(ξ)) over every vertex of the coefficient hypercube
@@ -285,7 +285,7 @@ Verdicts:
 - **PINN comparators.** `src/pinn.py` implements a simplified, time-boxed
   physics-informed network (data-fitting loss plus monotonicity/convexity
   penalty terms) rather than the architecture and training schedule the paper
-  describes only qualitatively (Sec. IV.B, flagged uncertainty); its held-out
+  describes only qualitatively (Sec. IV.B does not give an architecture); its held-out
   errors in Experiment 2 (140–234 bp) are far worse than the paper's
   ≈1.1–1.35 bp.
 - **Reduced LCHS calibration sweep (Experiment 2).** Every LCHS calibration
